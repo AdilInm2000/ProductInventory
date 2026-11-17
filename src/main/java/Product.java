@@ -5,6 +5,7 @@ public class Product
 	private final String category;
 	private double price;
 
+	//Product Constructor
 	public Product(long id, String name, String category, double price)
 	{
 		if(price>0)
@@ -18,6 +19,7 @@ public class Product
 
 	}
 
+	//getter
 	public String getName()
 	{
 		return name;
