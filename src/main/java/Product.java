@@ -3,7 +3,7 @@ public class Product
 	private final long id;
 	private final String name;
 	private final String category;
-	private double price = 200;
+	private double price = 150;
 
 	//Product Constructor
 	public Product(long id, String name, String category, double price)
