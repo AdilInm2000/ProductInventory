@@ -53,5 +53,6 @@ public class Product
 		return ("Id:"+id+" Name:"+name+" Price:"+price+" Category:"+category);
 	}
 	// Product sorting feature in development
+	// Rebase practice: master branch change
 
 }
