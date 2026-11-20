@@ -3,7 +3,7 @@ public class Product
 	private final long id;
 	private final String name;
 	private final String category;
-	private double price;
+	private double price = 150;
 
 	//Product Constructor
 	public Product(long id, String name, String category, double price)
@@ -53,5 +53,6 @@ public class Product
 		return ("Id:"+id+" Name:"+name+" Price:"+price+" Category:"+category);
 	}
 	// Product sorting feature in development
+	// Rebase practice: master branch change
 
 }
