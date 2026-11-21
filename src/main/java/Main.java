@@ -5,7 +5,8 @@ public class Main
 		Product product = new Product(1,"iPhone", "Electronics", 999.99);
 		InventoryManager manager = new InventoryManager();
 
-
+		manager.addProduct(product);
+		manager.displayAllProducts();
 
 	}
 }

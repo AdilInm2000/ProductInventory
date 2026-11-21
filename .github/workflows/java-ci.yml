@@ -52,6 +52,8 @@ jobs:
         with:
           name: ProductInventory
           path: downloaded-artifact
+      - name: List downloaded files
+        run: ls -l downloaded-artifact
 
 
 
