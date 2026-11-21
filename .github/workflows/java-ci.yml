@@ -2,7 +2,11 @@ name: Java CI
 
 on:
   push:
+    branches:
+      - master
   pull_request:
+    branches:
+      - master
 
 jobs:
   build:
@@ -15,5 +19,10 @@ jobs:
           with:
             java-version: '21'
             distribution: 'temurin'
-        - name: Run tests
-          run: mvn clean test
+        - name: Build and test
+          run: mvn clean package
+        - name: Upload JAR
+          uses: actions/upload-artifact@v4
+          with:
+            name: ProductInventory
+            path: target/product-inventory-1.0-SNAPSHOT.jar
