@@ -54,6 +54,8 @@ jobs:
           path: downloaded-artifact
       - name: List downloaded files
         run: ls -l downloaded-artifact
+      - name: Run ProductInventory
+        run: java -jar downloaded-artifact/product-inventory-1.0-SNAPSHOT.jar
 
 
 
