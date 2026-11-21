@@ -40,5 +40,18 @@ jobs:
           with:
             name: ProductInventory
             path: target/product-inventory-1.0-SNAPSHOT.jar
+  deploy:
+    needs:
+      - test
+      - build
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ProductInventory
+          path: downloaded-artifact
+
 
 
