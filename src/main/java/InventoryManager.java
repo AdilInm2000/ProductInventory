@@ -1,3 +1,4 @@
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.HashMap; 
 import java.util.Map; 
@@ -8,18 +9,17 @@ import java.util.stream.Collectors;
 
 public class InventoryManager
 {
-	private Map<Long,Product> inventory;
+	private final ProductRepository repository;
 
-	public InventoryManager()
+	public InventoryManager(ProductRepository repository)
 	{
-		inventory = new HashMap<>();
+		this.repository = repository;
 	}
 
-	public void addProduct(Product product)
+	public void addProduct(Product product) throws SQLException
 	{
 		if (product == null) throw new IllegalArgumentException("Product cannot be null");
-		if(inventory.containsKey(product.getId())) throw new IllegalArgumentException("Product with same id already exists");
-		inventory.put(product.getId(), product);
+		repository.saveProduct(product);		
 	}
 
 	/*public Product getProduct(long id)
@@ -30,31 +30,34 @@ public class InventoryManager
 		}
 		else return null;
 	}*/
-	public Optional<Product> getProduct(long id)
+	public Optional<Product> getProduct(long id) throws SQLException
 	{
-    	return Optional.ofNullable(inventory.get(id));
+    	return Optional.ofNullable(repository.getProductById(id));
 	}
 
-	public void removeProduct(long id)
+	public void removeProduct(long id) throws SQLException
 	{
-		if(inventory.remove(id) == null) throw new IllegalArgumentException("Product doesn't exist");
+		if(!repository.deleteProduct(id)) throw new IllegalArgumentException("Product doesn't exist");
 	}
 
-	public void displayAllProducts()
+	public void displayAllProducts() throws SQLException
 	{
-		if(inventory.isEmpty())
+		List<Product> products = repository.getAllProducts();
+		if (products.isEmpty())
+		{
 			System.out.println("Empty Inventory");
+		}
 		else
 		{
-			for(Product p : inventory.values())
+			for (Product p : products)
 			{
 				System.out.println(p);
 			}
 		}
 	}
-	public int getProductCount()
+	public int getProductCount() throws SQLException
 	{
-		return inventory.size();
+		return (repository.getProductCount());
 	}
 
 	/*public void updateProductPrice(long id, double newPrice)
@@ -67,36 +70,24 @@ public class InventoryManager
 		else
 			throw new IllegalArgumentException("Product doesn't exist");
 	}*/
-	public void updateProductPrice(long id, double newPrice)
+	public void updateProductPrice(long id, double newPrice) throws SQLException
 	{
-		Optional<Product> p = this.getProduct(id);
-		p.ifPresentOrElse(
-		    product -> product.setPrice(newPrice),
-		    () -> { throw new IllegalArgumentException("Product doesn't exist"); }
-		);
+		if(!repository.updateProductPrice(id, newPrice)) throw new IllegalArgumentException("Product doesn't exist");
 	}
 
-	public List<Product> getProductsByCategory(String category)
+	public List<Product> getProductsByCategory(String category) throws SQLException
 	{
-		List<Product> productsList = inventory.values().stream()
-		.filter(p -> p.getCategory().equals(category))
-		.collect(Collectors.toList());
-		return productsList;
+		return repository.getProductsByCategory(category);
 	}
-	public List<Product> getProductsCheaperThan(double maxPrice)
+	public List<Product> getProductsCheaperThan(double maxPrice) throws SQLException
 	{
-		List<Product> productsList = inventory.values().stream()
-		.filter(p -> p.getPrice()<maxPrice)
-		.collect(Collectors.toList());
-		return productsList;
+		return repository.getProductsCheaperThan(maxPrice);
 	}
-	public List<Product> getProductsByName(String keyword)
+	public List<Product> getProductsByName(String keyword) throws SQLException
 	{
 		if (keyword == null || keyword.isBlank()) throw new IllegalArgumentException("Empty keyword");
 
-		return inventory.values().stream()
-		.filter(p -> p.getName().toLowerCase().contains(keyword.toLowerCase()))
-		.collect(Collectors.toList());
+		return repository.getProductsByName(keyword);
 	}
 
 }
