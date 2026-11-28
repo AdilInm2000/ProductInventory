@@ -1,22 +1,23 @@
+package com.productinventory.model;
+import java.math.BigDecimal;
+
 public class Product
 {
 	private final long id;
 	private final String name;
 	private final String category;
-	private double price = 150;
+	private BigDecimal price;
 
 	//Product Constructor
-	public Product(long id, String name, String category, double price)
+	public Product(long id, String name, String category, BigDecimal price)
 	{
-		if(price>0)
-		{
-			this.id = id;
-			this.name = name;
-			this.category = category;
-			this.price = price;
-		}
-		else throw new IllegalArgumentException("Price must be greater than zero");
+		if (price == null || price.compareTo(BigDecimal.ZERO) <= 0)
+			throw new IllegalArgumentException("Price must be greater than zero");
 
+		this.id = id;
+		this.name = name;
+		this.category = category;
+		this.price = price;
 	}
 
 	//getter
@@ -32,21 +33,18 @@ public class Product
 	{
 		return category;
 	}
-	public double getPrice()
+	public BigDecimal getPrice()
 	{
 		return price;
 	}
 
-	public void setPrice(double price)
+	public void setPrice(BigDecimal price)
 	{
-		if(price>0)
-		{
-			this.price = price;
-		}
-		else
-		{
+		if (price == null || price.compareTo(BigDecimal.ZERO) <= 0)
 			throw new IllegalArgumentException("negative or 0 price not allowed");
-		}
+
+		this.price = price;
+
 	}
 	public String toString()
 	{

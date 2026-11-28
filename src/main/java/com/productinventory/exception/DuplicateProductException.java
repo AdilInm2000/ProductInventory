@@ -1,4 +1,4 @@
-
+package com.productinventory.exception;
 public class DuplicateProductException extends RuntimeException {
 
 	public DuplicateProductException(String message)

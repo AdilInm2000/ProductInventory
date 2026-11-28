@@ -1,9 +1,10 @@
+package com.productinventory.service;
+import com.productinventory.model.Product;
+import com.productinventory.repository.ProductRepository;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Optional;
-import java.util.HashMap; 
-import java.util.Map; 
 import java.util.List;
-import java.util.stream.Collectors; 
 
 
 
@@ -22,14 +23,6 @@ public class InventoryManager
 		repository.saveProduct(product);		
 	}
 
-	/*public Product getProduct(long id)
-	{
-		if(inventory.containsKey(id))
-		{
-			return inventory.get(id);
-		}
-		else return null;
-	}*/
 	public Optional<Product> getProduct(long id) throws SQLException
 	{
     	return Optional.ofNullable(repository.getProductById(id));
@@ -60,17 +53,7 @@ public class InventoryManager
 		return (repository.getProductCount());
 	}
 
-	/*public void updateProductPrice(long id, double newPrice)
-	{
-		Optional<Product> p = this.getProduct(id);
-		if(p.isPresent())
-		{
-			p.get().setPrice(newPrice);	
-		}
-		else
-			throw new IllegalArgumentException("Product doesn't exist");
-	}*/
-	public void updateProductPrice(long id, double newPrice) throws SQLException
+	public void updateProductPrice(long id, BigDecimal newPrice) throws SQLException
 	{
 		if(!repository.updateProductPrice(id, newPrice)) throw new IllegalArgumentException("Product doesn't exist");
 	}
@@ -79,7 +62,7 @@ public class InventoryManager
 	{
 		return repository.getProductsByCategory(category);
 	}
-	public List<Product> getProductsCheaperThan(double maxPrice) throws SQLException
+	public List<Product> getProductsCheaperThan(BigDecimal maxPrice) throws SQLException
 	{
 		return repository.getProductsCheaperThan(maxPrice);
 	}

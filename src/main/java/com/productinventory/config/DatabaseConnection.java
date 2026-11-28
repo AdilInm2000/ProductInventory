@@ -1,3 +1,4 @@
+package com.productinventory.config;
 import java.sql.SQLException;
 import java.sql.DriverManager;
 import java.sql.Connection;

@@ -1,9 +1,15 @@
+package com.productinventory.repository;
+import com.productinventory.model.Product;
+import com.productinventory.config.DatabaseConnection;
+import com.productinventory.exception.DuplicateProductException;
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class ProductRepository
 {
@@ -11,28 +17,28 @@ public class ProductRepository
 
 	public ProductRepository(DatabaseConnection databaseConnection)
 	{
-		this.databaseConnection = databaseConnection;
+		this.databaseConnection = Objects.requireNonNull(databaseConnection, "DatabaseConnection cannot be null");
 	}
 
 
 	public void saveProduct(Product product) throws SQLException
 	{
-		String sql = "INSERT INTO products (id, name, category, price) VALUES (?, ?, ?, ?)";
+		String sql = "INSERT INTO PRODUCTS (id, name, category, price) VALUES (?, ?, ?, ?)";
 		try (Connection connection = databaseConnection.getConnection()) {
 			try (PreparedStatement statement = connection.prepareStatement(sql)) {
 				statement.setLong(1, product.getId());
 				statement.setString(2, product.getName());
 				statement.setString(3, product.getCategory());
-				statement.setDouble(4, product.getPrice());
+				statement.setBigDecimal(4, product.getPrice());
 				statement.executeUpdate();
 			}
-		   
+
 		}
 		catch(SQLException e)
 		{
 			if("23505".equals(e.getSQLState()))
 			{
-				throw new DuplicateProductException("A product with this id already exists", e);
+				throw new DuplicateProductException("A product with id already exists", e);
 			}
 			throw e;
 		}
@@ -40,7 +46,7 @@ public class ProductRepository
 
 	public List<Product> getAllProducts() throws SQLException
 	{
-	    String sql = "Select * From Products";
+	    String sql = "SELECT * FROM PRODUCTS";
 	    List<Product> products = new ArrayList<>();
 
 		try (Connection connection = databaseConnection.getConnection())
@@ -51,11 +57,7 @@ public class ProductRepository
 				{
 					while (resultSet.next())
 					{
-						long id = resultSet.getLong("id");
-						String name = resultSet.getString("name");
-						String category = resultSet.getString("category");
-						double price = resultSet.getDouble("price");
-						products.add(new Product(id, name, category, price));
+						products.add(mapRow(resultSet));
 					}
 				}
 			}
@@ -65,7 +67,7 @@ public class ProductRepository
 
 	public Product getProductById(long id) throws SQLException
 	{
-	    String sql = "Select * From Products where id = ?";
+	    String sql = "SELECT * FROM PRODUCTS WHERE id = ?";
 		try (Connection connection = databaseConnection.getConnection())
 		{
 			try (PreparedStatement statement = connection.prepareStatement(sql))
@@ -75,10 +77,7 @@ public class ProductRepository
 				{
 					if(resultSet.next())
 					{
-						String name = resultSet.getString("name");
-						String category = resultSet.getString("category");
-						double price = resultSet.getDouble("price");
-						return (new Product(id, name, category, price));
+						return mapRow(resultSet);
 					}
 				}
 			}
@@ -86,22 +85,22 @@ public class ProductRepository
 		return null;
 	}
 
-	public boolean updateProductPrice(long id, double newPrice) throws SQLException
+	public boolean updateProductPrice(long id, BigDecimal newPrice) throws SQLException
 	{
-	    String sql = "update products set price = ? where id = ?";
+	    String sql = "UPDATE PRODUCTS SET price = ? WHERE id = ?";
 	    try (Connection connection = databaseConnection.getConnection()) {
-	    	try (PreparedStatement statement = connection.prepareStatement(sql)) {
-	    		statement.setDouble(1, newPrice);
-	    		statement.setLong(2, id);
-	    		int rowsUpdated = statement.executeUpdate();
-	    		return rowsUpdated > 0;
-	    	}
+		try (PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setBigDecimal(1, newPrice);
+			statement.setLong(2, id);
+			int rowsUpdated = statement.executeUpdate();
+			return rowsUpdated > 0;
+		}
 	    }
 	}
 
 	public boolean deleteProduct(long id) throws SQLException
 	{
-		String sql = "delete from products where id = ?";
+		String sql = "DELETE FROM PRODUCTS WHERE id = ?";
 		try (Connection connection = databaseConnection.getConnection()) {
 			try (PreparedStatement statement = connection.prepareStatement(sql)) {
 				statement.setLong(1, id);
@@ -113,7 +112,7 @@ public class ProductRepository
 
 	public int getProductCount() throws SQLException
 	{
-		String sql = "select count(*) as count from products";
+		String sql = "SELECT COUNT(*) as count FROM PRODUCTS";
 		int count = 0;
 		try (Connection connection = databaseConnection.getConnection()) {
 			try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -132,7 +131,7 @@ public class ProductRepository
 
 	public List<Product> getProductsByCategory(String category) throws SQLException
 	{
-		String sql = "select * from products where category = ?";
+		String sql = "SELECT * FROM PRODUCTS WHERE category = ?";
 		List<Product> products = new ArrayList<>();
 		try (Connection connection = databaseConnection.getConnection())
 		{
@@ -143,11 +142,7 @@ public class ProductRepository
 				{
 					while(resultSet.next())
 					{
-						long id  = resultSet.getLong("id");
-						String name = resultSet.getString("name");
-						String productCategory = resultSet.getString("category");
-						double price = resultSet.getDouble("price");
-						products.add(new Product(id, name, productCategory, price));
+						products.add(mapRow(resultSet));
 					}
 				}
 			}
@@ -155,24 +150,20 @@ public class ProductRepository
 		return products;
 	}
 
-	public List<Product> getProductsCheaperThan(double maxPrice) throws SQLException
+	public List<Product> getProductsCheaperThan(BigDecimal maxPrice) throws SQLException
 	{
-		String sql = "SELECT * FROM products WHERE price < ?";
+		String sql = "SELECT * FROM PRODUCTS WHERE price < ?";
 		List<Product> products = new ArrayList<>();
 		try (Connection connection = databaseConnection.getConnection())
 		{
 			try (PreparedStatement statement = connection.prepareStatement(sql))
 			{
-				statement.setDouble(1, maxPrice);
+				statement.setBigDecimal(1, maxPrice);
 				try(ResultSet resultSet = statement.executeQuery())
 				{
 					while(resultSet.next())
 					{
-						long id  = resultSet.getLong("id");
-						String name = resultSet.getString("name");
-						String category = resultSet.getString("category");
-						double price = resultSet.getDouble("price");
-						products.add(new Product(id, name, category, price));
+						products.add(mapRow(resultSet));
 					}
 				}
 			}
@@ -182,7 +173,7 @@ public class ProductRepository
 
 	public List<Product> getProductsByName(String keyword) throws SQLException
 	{
-		String sql = "SELECT * FROM products WHERE LOWER(name) LIKE LOWER(?);";
+		String sql = "SELECT * FROM PRODUCTS WHERE LOWER(name) LIKE LOWER(?);";
 		List<Product> products = new ArrayList<>();
 		try (Connection connection = databaseConnection.getConnection())
 		{
@@ -193,16 +184,22 @@ public class ProductRepository
 				{
 					while(resultSet.next())
 					{
-						long id  = resultSet.getLong("id");
-						String name = resultSet.getString("name");
-						String category = resultSet.getString("category");
-						double price = resultSet.getDouble("price");
-						products.add(new Product(id, name, category, price));
+						products.add(mapRow(resultSet));
 					}
 				}
 			}
 		}
 		return products;
+
+	}
+	private Product mapRow(ResultSet resultSet) throws SQLException
+	{
+		long id  = resultSet.getLong("id");
+		String name = resultSet.getString("name");
+		String category = resultSet.getString("category");
+		BigDecimal price = resultSet.getBigDecimal("price");
+
+		return new Product(id, name, category, price);
 
 	}
 

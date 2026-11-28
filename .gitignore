@@ -1,4 +1,18 @@
+# Maven
 target/
+
+# Compiled Java files
 *.class
+
+# IDE settings
 .idea/
 .vscode/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Local configuration
+application-local.properties
+application-local.yml
